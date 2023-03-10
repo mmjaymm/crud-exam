@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @unique  @db.VarChar(100)
+  password String
+
+  company Company @relation(fields: [companyId], references: [id])
+  companyId Int
+
+  department Department @relation(fields: [departmentId], references: [id])
+  departmentId Int
+}
+
+model Company {
+  id Int @id @default(autoincrement())
+  name String
+  employees Employee[]
+  departments Department[]
+  users User[]
+} 
+
+model Department {
+  id Int @id @default(autoincrement())
+  name String
+
+  employees Employee[]
+  users User[]
+
+  company Company @relation(fields: [companyId], references: [id])
+  companyId Int
+}
+
+model Employee {
+  id Int @id @default(autoincrement())
+  email String @unique @db.VarChar(254)
+  firstName String @db.VarChar(254)
+  lastName String @db.VarChar(254)
+  
+  sms Sms[]
+  smslogs SmsLog[]
+
+  company Company @relation(fields: [companyId], references: [id])
+  companyId Int
+  
+  department Department @relation(fields: [departmentId], references: [id])
+  departmentId Int
+}
+
+model Sms {
+  id Int @id @default(autoincrement())
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sms SmsLog[]
+
+  employee Employee @relation(fields: [senderId], references: [id])
+  senderId Int //employee ID
+}
+
+model SmsLog {
+  id Int @id @default(autoincrement())
+
+  smslog Sms @relation(fields: [smsId], references: [id])
+  smsId Int
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int // employee ID
+}
+
